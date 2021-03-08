@@ -1,0 +1,94 @@
+--------------------------------------------------------------------------------
+| Gherman Maria Irina    ____  ____  _  _   __      __                324 CB   |
+|                       (_  _)(  __)( \/ ) / _\    /  )                        |
+|                         )(   ) _) / \/ \/    \    )(                         |
+|                        (__) (____)\_)(_/\_/\_/   (__)                        |
+|                                                                              |
+--------------------------------------------------------------------------------
+
+Pentru ca nu-mi place sa pun comentarii in cod prea multe, o sa explic aici ce 
+face exact fiecare functie si cum se imbina pentru a rezolva cerinta:
+
+1. read_table
+
+    Am vazut pe forum ca avem voie sa folosim Data.List si am zis ca 
+Data.List.Split e ok. Daca nu, rezolvam asemanator cerinta, implementand eu
+singura splitOn si endBy
+    Practic, combinand aceste 2 functii, cu tot cu map, am delimitat stringul
+intr-o lista de liste tot tabelul, si cu map_to_table (nume neinspirat, stiu),
+am reconstruit tabelul din [[String]] in Table.
+
+2. show
+
+    Asta a mers putin mai greu, pentru ca am avut nevoie de o suta de mii de
+functii ajutatoare...
+    Basically, primul pas a fost sa imi iau un vector de maxime astfel:
+    Daca in prima coloana avem lungimea maxima a unui field 5, primul element
+din vectorul meu de maxime o sa fie 5. Vectorul asta e calculat de
+compute_length si compute_helper (de compute_length nu aveam neaparata nevoie,
+dar nu-mi place sa am "apeluri hardcodate", adica sa apelez in show de ex
+functia cu parametrul 0. Ce e 0? De unde vine? De-aia mi-am facut 2 functii
+in loc de una).
+    In afara de vectorul de maxime, mai am o functie care imi returneaza acel
+delimitator, linia plina de "-".
+    Ca helpere, get_ith_length face ce spune, calculeaza lungimea maxima a
+coloanei i din lista de Entry-uri. Get_ith_col returneaza a i-a coloana, sub
+forma de lista (ca mi-a fost mai usor asa).
+    Show_column (ar fi trebuit sa o numesc show_field tbh) afiseaza un field,
+adica field-ul si cat padding are nevoie. Show_line afiseaza o linie, adica un
+Entry. Show_entries apeleaza show_line de mai multe ori.
+    Show_header functioneaza asemanator cu restul.
+
+3. filtre
+
+    Pentru filtre, m-am ajutat de inchiderile functionale (puteam sa folosesc
+si lambdas peste tot, dar era mai greu de citit).
+    Ca helper principal am avut elemIndex, combinat cu fromMaybe.
+
+4. select & selectlimit
+
+    Pentru select, mi-am facut un helper, merge_correctly, pentru ca nu-mi
+placea cum se comporta zipWith (++) (pana la urma, lucrul cel mai bun e cel
+facut de tine). select_helper pur si simplu itereaza prin lista de coloane
+si concateneaza la rezultat, cu merge_correctly, coloana corespunzatoare.
+    Pentru SelectLimit, am aplicat un take in plus.
+
+5. :||
+
+    Pentru combinarea query-urilor, mi-am facut o functie care concateneaza
+entry-urile a doua tabele (cu headere identice), merge_entries.
+
+6. same_zone, male_within_age, mixed
+
+    Pentru testele astea, pur si simplu am aplicat filtrele deja implementate.
+    Pentru same_zone, mi-am facut un helper care returneaza zona unui user
+identificat prin user_id
+
+7. cosine
+
+    Sincer, chiar am incercat sa fac bonusul. Implementarea mea cred ca e 
+putin ineficienta, dar am folosit map gandindu-ma ca o sa imi dea un rezultat
+bun... Aparent, la inputuri mari, ceva nu merge cum trebuie.
+    Tin sa mentionez ca pentru exemplul din enunt (si test cases mici) MERGE.
+
+    M-am gandit ca pentru cosine query, sa imi fac un map de tupluri
+(film, rating). Fiecare user are un map corespunzator.
+    Pairs imi returneaza perechile de useri care trebuie comparati.
+    Build_entry imi ia o pereche (user1, user2) si afiseaza entry-ul
+corespunzator comparatiei intre cei 2.
+    User_list imi returneaza o lista cu toate user_id.
+    populate_map primeste map-ul unui user si entry-urile din tabelul original,
+filtrate dupa user_id (a se vedea cum e apelat, la linia 174) si stocheaza
+rating-ul fiecarui film.
+    Restul helperelor sper ca sunt clare.
+
+    De mentionat ca, pentru a putea pune 0 unde user-ul nu a dat rating, 
+map-ul fiecarui user contine toate filmele din tabel. Am vrut sa folosesc map
+pentru ca crearea acestor liste de tupluri era usoara (map-ul nu accepta
+duplicate). Cred totusi ca fix folosirea map-ului duce la timpi extrem de mari
+si comportamente ciudate pe test cases mari.
+
+    Sper ca incercarea mea (care in teorie este corecta) este indeajuns pentru
+macar o mica parte din punctaj... Pentru ca am incercat, chiar am incercat...
+Daca nu eram plina de deadline-uri, incercam alta implementare (fara map), dar
+na, timpul este limitat.
